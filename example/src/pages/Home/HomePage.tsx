@@ -152,7 +152,8 @@ const HomePage = () => {
                     }))
               }
               setTargetContent={setTargetContent}
-              disabled={!selectedQuote}
+              // disabled={!selectedQuote}
+              multiple={true}
               {...(!selectedQuote ? { hoverQuote } : {})}
             />
           </Card>
