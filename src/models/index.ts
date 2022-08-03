@@ -1,63 +1,22 @@
-export type TCoordinateType = {
-  id?: string | number;
-  index?: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  content?: string;
-  [key: string]: any;
-};
+import { CSSProperties } from "react";
 
-export interface IMultiCropsProps extends IEvents {
-  coordinate?: TCoordinateType;
-  coordinates?: TCoordinateType[];
-  src?: string;
-  height?: number;
-  maxRegionListLength?: number;
+export interface ITargetData {
+  id: number | string;
+  content: string;
+  start: number;
+  end: number;
+  color?: string;
 }
 
-export interface IEvents {
-  onDraw?: (...rest) => any | void;
-  onDrag?: (...rest) => any | void;
-  onChange: (...rest) => any | void;
-  onComplete: (...rest) => any | void;
-  onRestore: (...rest) => any | void;
-  onDelete: (...rest) => any | void;
-  onLoad: (...rest) => any | void;
-  onResize?: (...rest) => any | void;
-}
+export type CallbackTargetContentFunction = (data: ITargetData[]) => any;
 
-export interface ICropProps extends IEvents {
-  coordinate: TCoordinateType;
-  coordinates: TCoordinateType[];
-  index: number;
-  isChange: (e: any) => void;
-  parentImg: HTMLImageElement | null;
-  outsideEvents: any;
-  cropConfig: ICropConfig;
-}
-
-export interface ICropConfig {
-  hasDeleteButton?: boolean;
-  hasContent?: boolean;
-  hasNumberIcon?: boolean;
-}
-
-export interface ICanvasConfig {
-  hasDeleteButton?: boolean;
-  hasContent?: boolean;
-  hasNumberIcon?: boolean;
-}
-
-export interface IRegionSelectorProps {
-  src?: string;
-  regions?: TCoordinateType[];
-  maxRegionListLength?: number;
-  onRegionChange?: (regions: TCoordinateType[]) => void;
-  inProportions?: boolean;
-  showCanvasList?: boolean;
-  onCanvasChange?: any;
-  width?: number;
-  cropConfig: ICropConfig;
+export interface TextSelectionHandlerProps {
+  affectedContent: string;
+  targetContent?: ITargetData[];
+  multiple?: boolean;
+  disabled?: boolean;
+  style?: CSSProperties;
+  className?: string;
+  setTargetContent?: CallbackTargetContentFunction;
+  hoverQuote?: { id: string | number | null; isHover: boolean };
 }

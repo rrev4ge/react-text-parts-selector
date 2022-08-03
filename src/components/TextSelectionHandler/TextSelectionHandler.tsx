@@ -1,40 +1,26 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
-import { useDidMountEffect } from "../../hooks";
+import { useDidMountEffect } from '../../hooks';
+import { ITargetData, TextSelectionHandlerProps } from '../../models';
+import CONSTANTS from '../../CONSTANTS';
 
-const colorList = ['#ff00ff', '#05a9c6', '#808000', '#00a100', '#ff00aa', '#05c6af', '#805500', '#00a15b'];
-
-
-interface ITargetData {
-  id: number | string;
-  content: string;
-  start: number;
-  end: number;
-  color?: string;
-}
-
-type CallbackTargetContentFunction = (data: ITargetData[]) => any;
-
-interface Props {
-  affectedContent: string;
-  targetContent?: ITargetData[];
-  multiple?: boolean;
-  disabled?: boolean;
-  style?: CSSProperties;
-  className?: string;
-  setTargetContent?: CallbackTargetContentFunction;
-  hoverQuote?: { id: string | number | null; isHover: boolean };
-}
-
-const defaultProps = {
-  multiple: false,
-  disabled: false,
-};
-
-const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
+const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
+  props,
+): React.ReactElement => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { affectedContent, targetContent, multiple, disabled, style, className, setTargetContent, hoverQuote } = props;
+  const {
+    affectedContent,
+    targetContent,
+    multiple = false,
+    disabled = false,
+    style,
+    className,
+    setTargetContent,
+    hoverQuote,
+  } = props;
   const [affectedData, setAffectedData] = useState<string>(affectedContent);
-  const [targetData, setTargetData] = useState(targetContent);
+  const [targetData, setTargetData] = useState<ITargetData[]>(
+    targetContent || [],
+  );
   const [affectedTextNode, setAffectedTextNode] = useState<React.ReactNode>([]);
   const [selectionData, setSelectionData] = useState<{
     [key: string]: boolean | number | null | any;
@@ -43,18 +29,25 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
     draggingHandle: null,
   });
 
-  const setTargetAreaStyle = (index: number, targetArea: any[] | undefined): CSSProperties | undefined => {
+  const setTargetAreaStyle = (
+    index: number,
+    targetArea: any[] | undefined,
+  ): CSSProperties | undefined => {
     let style: { [key: string]: string | number } = {};
     targetArea?.forEach((item, i) => {
       if (index >= item.start && index <= item.end) {
         style = {
           ...style,
           backgroundColor:
-            hoverQuote && hoverQuote?.id !== null && item.id !== hoverQuote?.id && !hoverQuote?.isHover
+            hoverQuote &&
+            hoverQuote?.id !== null &&
+            item.id !== hoverQuote?.id &&
+            !hoverQuote?.isHover
               ? item?.color
                 ? `${item?.color}20`
-                : `${colorList[i % colorList.length]}20`
-              : item?.color ?? colorList[i % colorList.length],
+                : `${CONSTANTS.COLOR_LIST[i % CONSTANTS.COLOR_LIST.length]}20`
+              : item?.color ??
+                CONSTANTS.COLOR_LIST[i % CONSTANTS.COLOR_LIST.length],
           color: 'white',
         };
       }
@@ -62,7 +55,11 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
     return style;
   };
 
-  const targetArea = (index, targetList, target): React.ReactElement | React.ReactFragment => {
+  const targetArea = (
+    index,
+    targetList,
+    target,
+  ): React.ReactElement | React.ReactFragment => {
     let res = (
       <span
         key={index}
@@ -103,7 +100,9 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
                 id={id}
                 className="sel-handle sel-end"
                 onMouseDown={!disabled ? selHandler : () => undefined}
-                onMouseEnter={!disabled ? (e) => e.preventDefault() : () => undefined}
+                onMouseEnter={
+                  !disabled ? (e) => e.preventDefault() : () => undefined
+                }
               >
                 |
               </span>
@@ -124,14 +123,20 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
       targetData &&
       !['sel-handle-start', 'sel-handle-end'].includes(e.relatedTarget.id)
     ) {
-      const direction = selectionData?.draggingHandle?.className === 'sel-handle sel-start' ? 'sel-start' : 'sel-end';
+      const direction =
+        selectionData?.draggingHandle?.className === 'sel-handle sel-start'
+          ? 'sel-start'
+          : 'sel-end';
 
       if (direction === 'sel-start') {
         const newTargetData = targetData.map((item) => {
           if (item.id === parseInt(selectionData?.draggingHandle?.id, 10)) {
             return {
               ...item,
-              start: parseInt(e.target.id, 10) < item.end ? parseInt(e.target.id, 10) : item.end,
+              start:
+                parseInt(e.target.id, 10) < item.end
+                  ? parseInt(e.target.id, 10)
+                  : item.end,
             };
           }
           return item;
@@ -143,7 +148,10 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
           if (item.id === parseInt(selectionData?.draggingHandle?.id, 10)) {
             return {
               ...item,
-              end: parseInt(e.target.id, 10) > item.start ? parseInt(e.target.id, 10) : item.start,
+              end:
+                parseInt(e.target.id, 10) > item.start
+                  ? parseInt(e.target.id, 10)
+                  : item.start,
             };
           }
           return item;
@@ -185,18 +193,25 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
   }, [disabled]);
 
   useEffect(() => {
-    const charNode = Array.from(affectedData || '', (target, i) => targetArea(i, targetData, target));
+    const charNode = Array.from(affectedData || '', (target, i) =>
+      targetArea(i, targetData, target),
+    );
     setAffectedTextNode(charNode);
   }, [targetData, selectionData]);
 
   useDidMountEffect(() => {
-    if (setTargetContent && targetData && !selectionData.isDragging && !disabled) {
+    if (
+      setTargetContent &&
+      targetData &&
+      !selectionData.isDragging &&
+      !disabled
+    ) {
       setTargetContent(targetData);
     }
   }, [selectionData.isDragging]);
 
   useDidMountEffect(() => {
-    setTargetData(targetContent);
+    setTargetData(targetContent || []);
   }, [targetContent]);
 
   useDidMountEffect(() => {
@@ -204,21 +219,18 @@ const TextSelectionHandler: React.FC<Props> = (props): React.ReactElement => {
   }, [affectedContent]);
 
   return (
-    <div className={className ?? 'card'} style={style ?? {}}>
-      <div
-        className="full-text"
-        onMouseEnter={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          e.nativeEvent.stopImmediatePropagation();
-        }}
-      >
-        {affectedTextNode}
-      </div>
+    <div
+      className={className}
+      style={style ?? { display: 'flex', overflow: 'break-word' }}
+      onMouseEnter={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+    >
+      {affectedTextNode}
     </div>
   );
 };
-
-TextSelectionHandler.defaultProps = defaultProps;
 
 export default TextSelectionHandler;

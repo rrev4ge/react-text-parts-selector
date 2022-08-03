@@ -1,8 +1,8 @@
-# REGIONS SELECTOR COMPONENT
+# TEXT SELECTION HANDLER COMPONENT
 
-## <a href="https://rrev4ge.github.io/react-image-regions-selector" target="_blank">DEMO on GitHub Pages</a>
+## <a href="https://rrev4ge.github.io/react-text-selection-handler" target="_blank">DEMO on GitHub Pages</a>
 
-![demo_screenshot](./react-image-regions-selector-(demo).png)
+![demo_screenshot](./react-text-selection-handler-(demo).png)
 
 ### Call Preview
 ```jsx

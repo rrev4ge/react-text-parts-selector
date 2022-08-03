@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 
-const getWindowDimensions = (): { [key: string]: number | string } => {
+export interface IWindowDimensions {
+  width: number,
+  height: number,
+}
+const getWindowDimensions = (): IWindowDimensions => {
   const { innerWidth: width, innerHeight: height } = window;
   return {
     width,
@@ -8,12 +12,12 @@ const getWindowDimensions = (): { [key: string]: number | string } => {
   };
 };
 
-const useWindowDimensions = (): { [key: string]: number | string } => {
-  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions);
+const useWindowDimensions = (): IWindowDimensions => {
+  const [windowDimensions, setWindowDimensions] = useState<IWindowDimensions>(getWindowDimensions);
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowDimensions(getWindowDimensions());
+      setWindowDimensions(getWindowDimensions);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
