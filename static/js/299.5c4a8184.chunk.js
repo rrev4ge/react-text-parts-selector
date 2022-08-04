@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkreact_text_parts_selector=self.webpackChunkreact_text_parts_selector||[]).push([[299],{6829:function(e,t,r){r.r(t),r.d(t,{default:function(){return c}});r(6845);var n=r(864),c=function(e){var t=e.children;return(0,n.jsx)(n.Fragment,{children:t})}}}]);
