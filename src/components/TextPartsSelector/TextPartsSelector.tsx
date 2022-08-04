@@ -30,7 +30,7 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   });
 
   const [hoverQuote, setHoverQuote] = useState<any>({
-    id: targetData?.[0].id,
+    id: targetData?.[0]?.id,
     isHover: false,
   });
 
