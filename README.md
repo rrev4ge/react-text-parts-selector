@@ -1,6 +1,6 @@
 # TEXT PARTS SELECTOR COMPONENT (this is alpha version, do not recomended for production use)
 
-## <a href="https://rrev4ge.github.io/react-text-selection-handler" target="_blank">DEMO on GitHub Pages</a>
+## <a href="https://rrev4ge.github.io/react-text-parts-selector" target="_blank">DEMO on GitHub Pages</a>
 
 ![demo_screenshot](./react-text-parts-selector-(demo).png)
 

@@ -1,6 +1,6 @@
 {
   "name": "react-text-parts-selector",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4-alpha",
   "description": "Select part(s) from text node",
   "author": "rrev4ge <rev4ge@outlook.com>",
   "license": "MIT",
