@@ -1,29 +1,29 @@
 {
-  "name": "react-text-selection-handler",
-  "version": "1.0.1",
-  "description": "Select multi target area from text node",
+  "name": "react-text-parts-selector",
+  "version": "0.0.3-alpha",
+  "description": "Select part(s) from text node",
   "author": "rrev4ge <rev4ge@outlook.com>",
   "license": "MIT",
-  "repository": "rrev4ge/react-text-selection-handler",
+  "repository": "rrev4ge/react-text-parts-selector",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",
   "keywords": [
     "text",
-    "area",
+    "parts",
     "target",
     "select",
     "multi"
   ],
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
+    "build": "microbundle --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx",
+    "start": "microbundle watch --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsxs",
     "prepublish": "run-s build",
     "postversion": "git push && git push --tags",
     "test": "run-s test:unit test:lint test:build",
@@ -67,7 +67,7 @@
     "eslint-plugin-react-hooks": "^4.5.0",
     "eslint-plugin-standard": "^4.0.1",
     "gh-pages": "^4.0.0",
-    "microbundle-crl": "^0.13.11",
+    "microbundle": "^0.15.0",
     "node-notifier": ">=8.0.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.6.2",
@@ -85,6 +85,7 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "canvas": "^2.9.3",
     "sass": "^1.54.0",
     "uuid": "^8.3.2"
   }

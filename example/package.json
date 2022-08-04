@@ -1,6 +1,6 @@
 {
-  "name": "react-text-selection-handler-example",
-  "homepage": "https://rrev4ge.github.io/react-text-selection-handler",
+  "name": "react-text-parts-selector",
+  "homepage": "https://rrev4ge.github.io/react-text-parts-selector",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -21,7 +21,7 @@
     "antd": "^4.22.2",
     "react": "link:../node_modules/react",
     "react-dom": "link:../node_modules/react-dom",
-    "react-text-selection-handler": "link:..",
+    "react-text-parts-selector": "link:..",
     "react-router-dom": "^5.2.0",
     "react-scripts": "file:../node_modules/react-scripts",
     "typescript": "file:../node_modules/typescript",

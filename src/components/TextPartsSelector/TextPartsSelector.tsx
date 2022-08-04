@@ -2,11 +2,11 @@ import React, { CSSProperties, useEffect, useRef, useState } from 'react';
 import { useDidMountEffect } from '../../hooks';
 import { ITargetData, TextSelectionHandlerProps } from '../../models';
 import CONSTANTS from '../../CONSTANTS';
+import '../../assets/css/textPartsSelector.scss';
 
-const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
+const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   props,
 ): React.ReactElement => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
     affectedContent,
     targetContent,
@@ -15,8 +15,8 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
     style,
     className,
     setTargetContent,
-    hoverQuote,
   } = props;
+
   const [affectedData, setAffectedData] = useState<string>(affectedContent);
   const [targetData, setTargetData] = useState<ITargetData[]>(
     targetContent || [],
@@ -27,6 +27,11 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
   }>({
     isDragging: false,
     draggingHandle: null,
+  });
+
+  const [hoverQuote, setHoverQuote] = useState<any>({
+    id: targetData?.[0].id,
+    isHover: false,
   });
 
   const setTargetAreaStyle = (
@@ -73,6 +78,7 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
     );
     targetList?.forEach((item) => {
       const id = `${item.id}-sel-handle-start`;
+      // const id = `${item.id}`;
       if (item.start === index) {
         res = (
           <React.Fragment key={index}>
@@ -130,7 +136,7 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
 
       if (direction === 'sel-start') {
         const newTargetData = targetData.map((item) => {
-          if (item.id === parseInt(selectionData?.draggingHandle?.id, 10)) {
+          if (selectionData?.draggingHandle?.id.includes(item.id)) {
             return {
               ...item,
               start:
@@ -141,11 +147,18 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
           }
           return item;
         });
+
         setTargetData(newTargetData);
       }
       if (direction === 'sel-end') {
         const newTargetData = targetData.map((item) => {
-          if (item.id === parseInt(selectionData?.draggingHandle?.id, 10)) {
+          console.log({
+            e,
+            targetData,
+            item,
+            handle: selectionData?.draggingHandle?.id,
+          });
+          if (selectionData?.draggingHandle?.id.includes(item.id)) {
             return {
               ...item,
               end:
@@ -156,6 +169,7 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
           }
           return item;
         });
+        console.log({ e, newTargetData });
         setTargetData(newTargetData);
       }
     }
@@ -233,4 +247,4 @@ const TextSelectionHandler: React.FC<TextSelectionHandlerProps> = (
   );
 };
 
-export default TextSelectionHandler;
+export default TextPartsSelector;
