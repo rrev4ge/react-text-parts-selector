@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from 'react';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import CONSTANTS from '../../CONSTANTS';
 import SpannedStringCharacter from './SpannedStringCharacter';
@@ -15,9 +15,10 @@ const TargetStringCharacter = (props): React.ReactElement => {
     targetData,
     stringCharacter,
     setTargetData,
-    selectionData,
-    setSelectionData,
     isTriggered,
+    dragState,
+    setDragState,
+    resizeHandler,
   } = props;
 
   const [hoverQuote, setHoverQuote] = useState<any>({
@@ -44,6 +45,10 @@ const TargetStringCharacter = (props): React.ReactElement => {
   const [triggerProps, setTriggerProps] = useState<ITriggerProps | null>(
     getTriggeredProps(),
   );
+
+  useEffect(() => {
+    setTriggerProps(() => getTriggeredProps());
+  }, [targetData, dragState]);
 
   const setStyle = (
     index: number,
@@ -72,55 +77,11 @@ const TargetStringCharacter = (props): React.ReactElement => {
   };
 
   const onMouseDownHandler = (e) => {
-    setSelectionData({
-      ...selectionData,
+    setDragState({
+      ...dragState,
       isDragging: true,
-      draggingHandle: e.target,
+      draggedHandle: e.target,
     });
-  };
-
-  const resizeHandler = (e): void => {
-    if (
-      selectionData.isDragging &&
-      targetData &&
-      !['sel-handle-start', 'sel-handle-end'].includes(e.relatedTarget.id)
-    ) {
-      const direction =
-        selectionData?.draggingHandle?.className === 'sel-handle sel-start'
-          ? 'sel-start'
-          : 'sel-end';
-
-      if (direction === 'sel-start') {
-        const newTargetData = targetData.map((item) => {
-          if (selectionData?.draggingHandle?.id.includes(item.id)) {
-            return {
-              ...item,
-              start:
-                parseInt(e.target.id, 10) < item.end
-                  ? parseInt(e.target.id, 10)
-                  : item.end,
-            };
-          }
-          return item;
-        });
-        setTargetData(newTargetData);
-      }
-      if (direction === 'sel-end') {
-        const newTargetData = targetData.map((item) => {
-          if (selectionData?.draggingHandle?.id.includes(item.id)) {
-            return {
-              ...item,
-              end:
-                parseInt(e.target.id, 10) > item.start
-                  ? parseInt(e.target.id, 10)
-                  : item.start,
-            };
-          }
-          return item;
-        });
-        setTargetData(newTargetData);
-      }
-    }
   };
 
   const span = (
@@ -128,7 +89,9 @@ const TargetStringCharacter = (props): React.ReactElement => {
       index={index}
       stringCharacter={stringCharacter}
       style={setStyle(index, targetData)}
-      onMouseEnterCallback={isTriggered ? resizeHandler : () => undefined}
+      onMouseEnterCallback={
+        isTriggered && dragState.isDragging ? resizeHandler : () => undefined
+      }
       onClickCallback={(e) => {
         setTargetData([
           ...targetData,
@@ -145,7 +108,7 @@ const TargetStringCharacter = (props): React.ReactElement => {
 
   return triggerProps ? (
     <React.Fragment key={index}>
-      {triggerProps.position === 'start' && span}
+      {triggerProps.position === 'end' && span}
       <TargetTrigger
         position={triggerProps.position}
         id={triggerProps.id}
@@ -157,7 +120,7 @@ const TargetStringCharacter = (props): React.ReactElement => {
         }}
         onMouseDownCallback={onMouseDownHandler}
       />
-      {triggerProps?.position === 'end' && span}
+      {triggerProps?.position === 'start' && span}
     </React.Fragment>
   ) : (
     span

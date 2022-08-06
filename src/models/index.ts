@@ -10,6 +10,11 @@ export interface ITargetData {
 
 export type CallbackTargetContentFunction = (data: ITargetData[]) => any;
 
+export interface IDragState {
+  isDragging: boolean;
+  draggedHandle: Element | null;
+}
+
 export interface TextSelectionHandlerProps {
   affectedContent: string;
   targetContent?: ITargetData[];
@@ -17,6 +22,6 @@ export interface TextSelectionHandlerProps {
   isTriggered?: boolean;
   style?: CSSProperties;
   className?: string;
-  setTargetContent?: CallbackTargetContentFunction;
+  onTargetContentChange?: CallbackTargetContentFunction;
   hoverQuote?: { id: string | number | null; isHover: boolean };
 }

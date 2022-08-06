@@ -139,7 +139,7 @@ const HomePage = () => {
                 end: q.posEnd,
                 color: q.color,
               }))}
-              setTargetContent={setTargetContent}
+              onTargetContentChange={setTargetContent}
               // isTriggered={!selectedQuote}
               multiple={true}
               // {...(!selectedQuote ? { hoverQuote } : {})}

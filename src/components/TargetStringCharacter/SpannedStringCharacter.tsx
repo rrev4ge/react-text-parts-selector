@@ -45,7 +45,7 @@ const SpannedStringCharacter: React.FC<ISpanedStringCharacterProps> = (
             return false;
           });
       }}
-      onClick={onClickCallback}
+      onClick={onClickHandler}
     >
       {stringCharacter}
     </span>
