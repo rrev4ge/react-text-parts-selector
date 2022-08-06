@@ -10,14 +10,14 @@ export interface IRTSHConstants {
 const CONSTANTS: IRTSHConstants = {
   MAX_REGION_LIST_LENGTH: 1000,
   COLOR_LIST: [
-    '#ff00ff',
-    '#05a9c6',
-    '#808000',
-    '#00a100',
-    '#ff00aa',
+    '#a8d1ff',
+    '#ffb7b7',
+    '#abab73',
+    '#dfdabf',
+    '#bd75a5',
     '#05c6af',
-    '#805500',
-    '#00a15b',
+    '#967f4f',
+    '#64a689',
   ],
   CHESS_BACKGROUND:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC',

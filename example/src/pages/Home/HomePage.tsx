@@ -94,7 +94,6 @@ const HomePage = () => {
   // }, []);
 
   const setTargetContent = (newQuotes) => {
-    console.log({ newQuotes });
 
     const r = [
       ...sortQuoteList.map((q, i) => ({
@@ -104,7 +103,9 @@ const HomePage = () => {
       })),
     ] as IQuote[];
 
-    setSortQuoteList(r);
+    console.log({ newQuotes, r });
+
+    // setSortQuoteList(r);
   };
 
   const handleChange = useDebounce((value: string) => {
