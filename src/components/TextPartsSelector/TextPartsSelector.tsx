@@ -13,7 +13,7 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
     affectedContent,
     targetContent,
     multiple = false,
-    disabled = false,
+    isTriggered = true,
     style,
     className,
     setTargetContent,
@@ -23,7 +23,18 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   const [targetData, setTargetData] = useState<ITargetData[]>(
     targetContent || [],
   );
-  const [affectedTextNode, setAffectedTextNode] = useState<React.ReactNode>([]);
+
+  useDidMountEffect(() => {
+    setTargetData(targetContent || []);
+  }, [targetContent]);
+
+  useDidMountEffect(() => {
+    setAffectedData(affectedContent);
+  }, [affectedContent]);
+
+  const [affectedTextNode, setAffectedTextNode] = useState<
+    React.ReactElement[]
+  >([]);
   const [selectionData, setSelectionData] = useState<{
     [key: string]: boolean | number | null | any;
   }>({
@@ -37,7 +48,7 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   });
 
   const mouseUpHandler = (): void => {
-    if (!disabled) {
+    if (!isTriggered) {
       setSelectionData({
         ...selectionData,
         isDragging: false,
@@ -46,18 +57,23 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   };
 
   useEffect(() => {
-    if (!disabled) {
+    if (isTriggered) {
       document.addEventListener('mouseup', mouseUpHandler);
     }
-    if (disabled) {
+    if (!isTriggered) {
       document.removeEventListener('mouseup', mouseUpHandler);
     }
     return () => document.removeEventListener('mouseup', mouseUpHandler);
-  }, [disabled]);
+  }, [isTriggered]);
 
   useEffect(() => {
-    const charNode = Array.from(affectedData || '', (target, i) => (
-      <TargetStringCharacter index={i} key={i} target={target} />
+    const charNode = Array.from(affectedData || '').map((item, i) => (
+      <TargetStringCharacter
+        index={i}
+        key={i}
+        stringCharacter={item}
+        targetData={targetData}
+      />
     ));
     setAffectedTextNode(charNode);
   }, [targetData, selectionData]);
@@ -67,19 +83,15 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
       setTargetContent &&
       targetData &&
       !selectionData.isDragging &&
-      !disabled
+      isTriggered
     ) {
       setTargetContent(targetData);
     }
   }, [selectionData.isDragging]);
 
-  useDidMountEffect(() => {
-    setTargetData(targetContent || []);
-  }, [targetContent]);
-
-  useDidMountEffect(() => {
-    setAffectedData(affectedContent);
-  }, [affectedContent]);
+  useEffect(() => {
+    console.log({ affectedTextNode });
+  }, [affectedTextNode]);
 
   return (
     <div

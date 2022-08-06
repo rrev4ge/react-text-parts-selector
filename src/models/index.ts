@@ -14,7 +14,7 @@ export interface TextSelectionHandlerProps {
   affectedContent: string;
   targetContent?: ITargetData[];
   multiple?: boolean;
-  disabled?: boolean;
+  isTriggered?: boolean;
   style?: CSSProperties;
   className?: string;
   setTargetContent?: CallbackTargetContentFunction;

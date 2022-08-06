@@ -4,15 +4,20 @@ import CONSTANTS from '../../CONSTANTS';
 import SpannedStringCharacter from './SpannedStringCharacter';
 import TargetTrigger from './TargetTrigger/TargetTrigger';
 
-const TargetStringCharacter = (props): JSX.Element => {
+export interface ITriggerProps {
+  id: string | number;
+  position: 'start' | 'end';
+}
+
+const TargetStringCharacter = (props): React.ReactElement => {
   const {
     index,
     targetData,
-    target,
+    stringCharacter,
     setTargetData,
     selectionData,
     setSelectionData,
-    disabled,
+    isTriggered,
   } = props;
 
   const [hoverQuote, setHoverQuote] = useState<any>({
@@ -20,9 +25,25 @@ const TargetStringCharacter = (props): JSX.Element => {
     isHover: true,
   });
 
+  const getTriggeredProps = (): ITriggerProps | null => {
+    let triggerProps: ITriggerProps | null = null;
+    if (isTriggered) {
+      targetData?.forEach((item) => {
+        if (item.start === index) {
+          triggerProps = { id: item.id, position: 'start' };
+          return;
+        }
+        if (item.end === index) {
+          triggerProps = { id: item.id, position: 'end' };
+        }
+      });
+    }
+    return triggerProps;
+  };
 
-
-  const [character, setCharacter] = useState();
+  const [triggerProps, setTriggerProps] = useState<ITriggerProps | null>(
+    getTriggeredProps(),
+  );
 
   const setStyle = (
     index: number,
@@ -102,172 +123,45 @@ const TargetStringCharacter = (props): JSX.Element => {
     }
   };
 
+  const span = (
+    <SpannedStringCharacter
+      index={index}
+      stringCharacter={stringCharacter}
+      style={setStyle(index, targetData)}
+      onMouseEnterCallback={isTriggered ? resizeHandler : () => undefined}
+      onClickCallback={(e) => {
+        setTargetData([
+          ...targetData,
+          {
+            id: uuid(),
+            content: 'string',
+            start: index,
+            end: index + 1,
+          },
+        ]);
+      }}
+    />
+  );
 
-  targetData?.forEach((item) => {
-    if (item.start === index) {
-      const id = `${item.id}-sel-handle-start`;
-      setCharacter(
-        <React.Fragment key={index}>
-          {!disabled && (
-            <TargetTrigger
-              position="start"
-              id={id}
-              onClickCallback={(e) => {
-                setHoverQuote({
-                  id: item.id,
-                  isHover: true,
-                });
-              }}
-              onMouseDownCallback={
-                !disabled ? onMouseDownHandler : () => undefined
-              }
-            />
-          )}
-          <SpannedStringCharacter
-            index={index}
-            stringCharacter={target}
-            style={setStyle(index, targetData)}
-            onMouseEnterCallback={!disabled ? resizeHandler : () => undefined}
-            onClickCallback={(e) => {
-              setTargetData([
-                ...targetData,
-                {
-                  id: uuid(),
-                  content: 'string',
-                  start: index,
-                  end: index + 1,
-                },
-              ]);
-            }}
-          />
-        </React.Fragment>
-      );
-      return;
-    }
-    if (item.end === index) {
-      const id = `${item.id}-sel-handle-end`;
-      res = (
-        <React.Fragment key={index}>
-          <SpannedStringCharacter
-            index={index}
-            stringCharacter={target}
-            style={setStyle(index, targetData)}
-            onMouseEnterCallback={!disabled ? resizeHandler : () => undefined}
-            onClickCallback={(e) => {
-              setTargetData([
-                ...targetData,
-                {
-                  id: uuid(),
-                  content: 'string',
-                  start: index,
-                  end: index + 1,
-                },
-              ]);
-            }}
-          />
-          {!disabled && (
-            <TargetTrigger
-              position="end"
-              id={id}
-              onClickCallback={(e) => {
-                setHoverQuote({
-                  id: item.id,
-                  isHover: true,
-                });
-              }}
-              onMouseDownCallback={
-                !disabled ? onMouseDownHandler : () => undefined
-              }
-            />
-          )}
-        </React.Fragment>
-      );
-    }
-  })
-
-
-
-  return (<>{targetData?.forEach((item) => {
-    if (item.start === index) {
-      const id = `${item.id}-sel-handle-start`;
-      res = (
-        <React.Fragment key={index}>
-          {!disabled && (
-            <TargetTrigger
-              position="start"
-              id={id}
-              onClickCallback={(e) => {
-                setHoverQuote({
-                  id: item.id,
-                  isHover: true,
-                });
-              }}
-              onMouseDownCallback={
-                !disabled ? onMouseDownHandler : () => undefined
-              }
-            />
-          )}
-          <SpannedStringCharacter
-            index={index}
-            stringCharacter={target}
-            style={setStyle(index, targetData)}
-            onMouseEnterCallback={!disabled ? resizeHandler : () => undefined}
-            onClickCallback={(e) => {
-              setTargetData([
-                ...targetData,
-                {
-                  id: uuid(),
-                  content: 'string',
-                  start: index,
-                  end: index + 1,
-                },
-              ]);
-            }}
-          />
-        </React.Fragment>
-      );
-      return;
-    }
-    if (item.end === index) {
-      const id = `${item.id}-sel-handle-end`;
-      res = (
-        <React.Fragment key={index}>
-          <SpannedStringCharacter
-            index={index}
-            stringCharacter={target}
-            style={setStyle(index, targetData)}
-            onMouseEnterCallback={!disabled ? resizeHandler : () => undefined}
-            onClickCallback={(e) => {
-              setTargetData([
-                ...targetData,
-                {
-                  id: uuid(),
-                  content: 'string',
-                  start: index,
-                  end: index + 1,
-                },
-              ]);
-            }}
-          />
-          {!disabled && (
-            <TargetTrigger
-              position="end"
-              id={id}
-              onClickCallback={(e) => {
-                setHoverQuote({
-                  id: item.id,
-                  isHover: true,
-                });
-              }}
-              onMouseDownCallback={
-                !disabled ? onMouseDownHandler : () => undefined
-              }
-            />
-          )}
-        </React.Fragment>
-      );
-    }
-  });}</>);
+  return triggerProps ? (
+    <React.Fragment key={index}>
+      {triggerProps.position === 'start' && span}
+      <TargetTrigger
+        position={triggerProps.position}
+        id={triggerProps.id}
+        onClickCallback={(e) => {
+          setHoverQuote({
+            id: triggerProps.id,
+            isHover: true,
+          });
+        }}
+        onMouseDownCallback={onMouseDownHandler}
+      />
+      {triggerProps?.position === 'end' && span}
+    </React.Fragment>
+  ) : (
+    span
+  );
 };
 
 export default TargetStringCharacter;

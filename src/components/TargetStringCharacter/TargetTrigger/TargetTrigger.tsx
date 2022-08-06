@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 
 export interface ITargetTriggerProps {
-  id: string;
+  id: string | number;
   position: 'start' | 'end';
   onMouseDownCallback?: (
     e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
@@ -32,7 +32,7 @@ const TargetTrigger: React.FC<ITargetTriggerProps> = (
 
   return (
     <span
-      id={id}
+      id={`${id}-sel-handle-${position}`}
       className={`sel-handle sel-${position}`}
       onMouseDown={onMouseDownHandler}
       onMouseEnter={(e) => e.preventDefault()}

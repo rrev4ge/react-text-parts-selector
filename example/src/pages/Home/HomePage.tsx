@@ -94,7 +94,6 @@ const HomePage = () => {
   // }, []);
 
   const setTargetContent = (newQuotes) => {
-
     const r = [
       ...sortQuoteList.map((q, i) => ({
         ...q,
@@ -141,7 +140,7 @@ const HomePage = () => {
                 color: q.color,
               }))}
               setTargetContent={setTargetContent}
-              // disabled={!selectedQuote}
+              // isTriggered={!selectedQuote}
               multiple={true}
               // {...(!selectedQuote ? { hoverQuote } : {})}
             />
