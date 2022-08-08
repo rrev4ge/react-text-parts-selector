@@ -1,6 +1,6 @@
 import { CSSProperties } from 'react';
 
-export interface ITargetData {
+export interface ISelectedDataMapItem {
   id: number | string;
   content: string;
   start: number;
@@ -8,7 +8,11 @@ export interface ITargetData {
   color?: string;
 }
 
-export type CallbackTargetContentFunction = (data: ITargetData[]) => any;
+export type CallbackTargetContentFunction = (
+  data: ISelectedDataMapItem[],
+) => any;
+
+export type CallbackActiveTargetFunction = (item: string | number) => any;
 
 export interface IDragState {
   isDragging: boolean;
@@ -17,11 +21,10 @@ export interface IDragState {
 
 export interface TextSelectionHandlerProps {
   affectedContent: string;
-  targetContent?: ITargetData[];
-  multiple?: boolean;
+  targetContent?: ISelectedDataMapItem[];
+  multiple?: boolean | number;
   isTriggered?: boolean;
-  style?: CSSProperties;
-  className?: string;
   onTargetContentChange?: CallbackTargetContentFunction;
-  hoverQuote?: { id: string | number | null; isHover: boolean };
+  activeTarget?: number | string;
+  onActiveTargetChange?: CallbackActiveTargetFunction;
 }

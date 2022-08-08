@@ -1,14 +1,23 @@
-import React, { CSSProperties, useEffect, useRef, useState } from 'react';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { useDidMountEffect } from '../../hooks';
 import {
   IDragState,
-  ITargetData,
+  ISelectedDataMapItem,
   TextSelectionHandlerProps,
 } from '../../models';
 import '../../assets/css/textPartsSelector.scss';
-import TargetStringCharacter from '../TargetStringCharacter';
 import CONSTANTS from '../../CONSTANTS';
+
+export interface ITriggerProps {
+  id: string | number;
+  position: 'start' | 'end' | 'all';
+}
+
+export interface ISpanCharacterProps {
+  style?: CSSProperties;
+  triggerProps?: ITriggerProps;
+}
 
 const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   props,
@@ -16,22 +25,23 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
   const {
     affectedContent,
     targetContent,
-    multiple = false,
+    activeTarget,
+    onActiveTargetChange,
+    multiple = targetContent && targetContent?.length > 1
+      ? targetContent.length
+      : false,
     isTriggered = true,
-    style,
-    className,
     onTargetContentChange,
   } = props;
 
   const [affectedData, setAffectedData] = useState<string>(affectedContent);
-  const [targetData, setTargetData] = useState<ITargetData[]>(
-    targetContent || [],
-  );
+  const [selectedDataMap, setSelectedDataMap] = useState<
+    ISelectedDataMapItem[]
+  >(targetContent || []);
 
-  const [hoverQuote, setHoverQuote] = useState<any>({
-    id: targetData?.[0]?.id,
-    isHover: true,
-  });
+  const [triggeredSelectionId, setTriggeredSelectionId] = useState<
+    string | number
+  >(activeTarget || selectedDataMap?.[0]?.id || '');
 
   const [dragState, setDragState] = useState<IDragState>({
     isDragging: false,
@@ -40,20 +50,69 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
 
   const [affectedTextNode, setAffectedTextNode] = useState<React.ReactNode>([]);
 
-  const setTargetAreaStyle = (
+  useDidMountEffect(() => {
+    setSelectedDataMap(targetContent || []);
+  }, [targetContent]);
+
+  useDidMountEffect(() => {
+    setAffectedData(affectedContent);
+  }, [affectedContent]);
+
+  useEffect(() => {
+    if (onTargetContentChange && !dragState.isDragging && isTriggered) {
+      onTargetContentChange(selectedDataMap);
+    }
+  }, [dragState.isDragging]);
+
+  useEffect(() => {
+    if (isTriggered) {
+      document.addEventListener('mouseup', mouseUpHandler);
+    }
+    if (!isTriggered) {
+      document.removeEventListener('mouseup', mouseUpHandler);
+    }
+    return () => document.removeEventListener('mouseup', mouseUpHandler);
+  }, [isTriggered]);
+
+  useEffect(() => {
+    const charNode = Array.from(affectedData || '', (char, index) =>
+      parsedStringCharacter(char, index),
+    );
+    setAffectedTextNode(charNode);
+  }, [selectedDataMap, dragState, activeTarget]);
+
+  // const setSelectedAreaStyle = (
+  //   item: ISelectedDataMapItem,
+  //   i: number,
+  // ): CSSProperties | undefined => {
+  //   const res = {
+  //     backgroundColor:
+  //       triggeredSelectionId &&
+  //       !triggeredSelectionId.toString().includes(item.id.toString())
+  //         ? item?.color
+  //           ? `${item?.color}50`
+  //           : `${CONSTANTS.COLOR_LIST[i % CONSTANTS.COLOR_LIST.length]}50`
+  //         : item?.color ??
+  //           CONSTANTS.COLOR_LIST[i % CONSTANTS.COLOR_LIST.length],
+  //     color: 'white',
+  //   };
+  //   return res;
+
+  // };
+
+  const setSelectedAreaStyle = (
     index: number,
-    targetArea: any[] | undefined,
+    targetArea: ISelectedDataMapItem[],
   ): CSSProperties | undefined => {
     let style: { [key: string]: string | number } = {};
     targetArea?.forEach((item, i) => {
       if (index >= item.start && index <= item.end) {
+        console.log({ item });
         style = {
           ...style,
           backgroundColor:
-            hoverQuote &&
-            hoverQuote?.id !== null &&
-            item.id !== hoverQuote?.id &&
-            !hoverQuote?.isHover
+            triggeredSelectionId &&
+            !triggeredSelectionId.toString().includes(item.id.toString())
               ? item?.color
                 ? `${item?.color}20`
                 : `${CONSTANTS.COLOR_LIST[i % CONSTANTS.COLOR_LIST.length]}20`
@@ -66,133 +125,109 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
     return style;
   };
 
-  const onMouseDownHandler = (e) => {
-    setHoverQuote({
-      id: e.target.id,
-      isHover: true,
-    });
-    setDragState({
-      ...dragState,
-      isDragging: true,
-      draggedHandle: e.target,
-    });
-  };
-
-  const targetArea = (
+  const parsedStringCharacter = (
+    char,
     index,
-    targetList,
-    target,
   ): React.ReactElement | React.ReactFragment => {
-    let res = (
-      <span
-        key={index}
-        id={`${index}`}
-        style={setTargetAreaStyle(index, targetData)}
-        className={`char char${index}`}
-        onMouseEnter={isTriggered ? resizeHandler : () => undefined}
-      >
-        {target}
-      </span>
-    );
-    targetList?.forEach((item) => {
-      const id = `${item.id}-sel-handle-start`;
-      // const id = `${item.id}`;
+    let characterProps: ISpanCharacterProps | null = { style: {} };
+    if (char === '|') {
+      console.log('aa');
+    }
+
+    selectedDataMap?.forEach((item, i) => {
+      if (item.start === index && item.end === index) {
+        characterProps = {
+          ...characterProps,
+          triggerProps: { id: item.id, position: 'all' },
+          // style: setSelectedAreaStyle(item, i) || {},
+        };
+        return;
+      }
       if (item.start === index) {
-        res = (
-          <React.Fragment key={index}>
-            {isTriggered && (
-              <span
-                id={id}
-                className="sel-handle sel-start"
-                onMouseDown={onMouseDownHandler}
-                onMouseEnter={(e) => e.preventDefault()}
-              >
-                |
-              </span>
-            )}
-            {res}
-          </React.Fragment>
-        );
+        characterProps = {
+          ...characterProps,
+          triggerProps: { id: item.id, position: 'start' },
+          // style: setSelectedAreaStyle(item, i) || {},
+        };
         return;
       }
       if (item.end === index) {
-        res = (
-          <React.Fragment key={index}>
-            {res}
-            {isTriggered && (
-              <span
-                id={id}
-                className="sel-handle sel-end"
-                onMouseDown={isTriggered ? onMouseDownHandler : () => undefined}
-                onMouseEnter={
-                  isTriggered ? (e) => e.preventDefault() : () => undefined
-                }
-              >
-                |
-              </span>
-            )}
-          </React.Fragment>
-        );
+        characterProps = {
+          triggerProps: { id: item.id, position: 'end' },
+          // style: setSelectedAreaStyle(item, i) || {},
+        };
+        // return;
       }
+      // if (index > item.start && index < item.end) {
+      //   characterProps = { style: setSelectedAreaStyle(item, i) || {} };
+      // }
     });
-    return res;
-  };
 
-  useDidMountEffect(() => {
-    setTargetData(targetContent || []);
-  }, [targetContent]);
-
-  useDidMountEffect(() => {
-    setAffectedData(affectedContent);
-  }, [affectedContent]);
-
-  useEffect(() => {
-    console.log({ dragState });
-
-    if (onTargetContentChange && !dragState.isDragging && isTriggered) {
-      onTargetContentChange(targetData);
-    }
-  }, [dragState.isDragging]);
-
-  const mouseUpHandler = (): void => {
-    if (isTriggered) {
-      setDragState({
-        ...dragState,
-        isDragging: false,
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (isTriggered) {
-      document.addEventListener('mouseup', mouseUpHandler);
-    }
-    if (!isTriggered) {
-      document.removeEventListener('mouseup', mouseUpHandler);
-    }
-    return () => document.removeEventListener('mouseup', mouseUpHandler);
-  }, [isTriggered]);
-
-  const resizeHandler = (e): void => {
-    console.log(
-      dragState.isDragging,
-      targetData,
-      !['sel-handle-start', 'sel-handle-end'].includes(e.relatedTarget.id),
+    const span = (
+      <span
+        key={index}
+        id={`${index}`}
+        style={{
+          cursor: 'inherit',
+          ...setSelectedAreaStyle(index, selectedDataMap),
+        }}
+        className={`char char${index}`}
+        onMouseEnter={isTriggered ? resizeHandler : () => undefined}
+        onDoubleClick={
+          multiple && (multiple === true || multiple > selectedDataMap.length)
+            ? (e) => onCharacterDoubleClickHandler(e, index)
+            : (e) => undefined
+        }
+      >
+        {char}
+      </span>
     );
 
+    if (characterProps?.triggerProps) {
+      const { position, id } = characterProps.triggerProps;
+      return (
+        <React.Fragment key={index}>
+          {['all', 'start'].includes(position) && (
+            <span
+              id={`${id}-sel-handle-start`}
+              className="sel-handle sel-start"
+              onMouseDown={onTriggerMouseDownHandler}
+              onMouseEnter={(e) => e.preventDefault()}
+            >
+              |
+            </span>
+          )}
+          {span}
+          {['all', 'end'].includes(position) && (
+            <span
+              id={`${id}-sel-handle-end`}
+              className="sel-handle sel-end"
+              onMouseDown={onTriggerMouseDownHandler}
+              onMouseEnter={(e) => e.preventDefault()}
+            >
+              |
+            </span>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    return span;
+  };
+
+  const resizeHandler = (e): void => {
     if (
       dragState.isDragging &&
-      targetData &&
+      selectedDataMap &&
       !['sel-handle-start', 'sel-handle-end'].includes(e.relatedTarget.id)
     ) {
       const direction =
         dragState?.draggedHandle?.className === 'sel-handle sel-start'
           ? 'sel-start'
           : 'sel-end';
-      console.log({ e2: e, direction });
 
       if (direction === 'sel-start') {
-        const newTargetData = targetData.map((item) => {
+        const newTargetData = selectedDataMap.map((item) => {
           if (dragState?.draggedHandle?.id.includes(item.id.toString())) {
             return {
               ...item,
@@ -204,10 +239,10 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
           }
           return item;
         });
-        setTargetData(newTargetData);
+        setSelectedDataMap(newTargetData);
       }
       if (direction === 'sel-end') {
-        const newTargetData = targetData.map((item) => {
+        const newTargetData = selectedDataMap.map((item) => {
           if (dragState?.draggedHandle?.id.includes(item.id.toString())) {
             return {
               ...item,
@@ -219,36 +254,48 @@ const TextPartsSelector: React.FC<TextSelectionHandlerProps> = (
           }
           return item;
         });
-        setTargetData(newTargetData);
+        setSelectedDataMap(newTargetData);
       }
     }
   };
 
-  useEffect(() => {
-    // const charNode = Array.from(affectedData || '').map((item, i) => (
-    //   <TargetStringCharacter
-    //     index={i}
-    //     key={i}
-    //     stringCharacter={item}
-    //     targetData={targetData}
-    //     setTargetData={setTargetData}
-    //     isTriggered={isTriggered}
-    //     onTargetContentChange={onTargetContentChange}
-    //     dragState={dragState}
-    //     setDragState={setDragState}
-    //     resizeHandler={resizeHandler}
-    //   />
-    // ));
-    const charNode = Array.from(affectedData || '', (target, i) =>
-      targetArea(i, targetData, target),
-    );
-    setAffectedTextNode(charNode);
-  }, [targetData, dragState]);
+  const onTriggerMouseDownHandler = (e) => {
+    setTriggeredSelectionId(e.target.id);
+    onActiveTargetChange && onActiveTargetChange(e.target.id);
+    setDragState({
+      ...dragState,
+      isDragging: true,
+      draggedHandle: e.target,
+    });
+  };
+
+  const onCharacterDoubleClickHandler = (e, index) => {
+    setSelectedDataMap([
+      ...selectedDataMap,
+      {
+        id: uuid(),
+        content: 'string',
+        start: index,
+        end: index,
+      },
+    ]);
+  };
+
+  const mouseUpHandler = (): void => {
+    if (isTriggered) {
+      setDragState({
+        ...dragState,
+        isDragging: false,
+      });
+    }
+  };
 
   return (
     <div
-      className={className}
-      style={style ?? { display: 'flex', overflow: 'break-word' }}
+      className="componentContainer"
+      style={{
+        cursor: dragState.isDragging ? 'ew-resize' : 'auto',
+      }}
       ref={(el) => {
         el &&
           el.addEventListener('selectstart', (e) => {

@@ -1,3 +1,19 @@
+.componentContainer {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.componentContainer > span
+{
+  flex:1 1 1;
+}
+
+
 .sel-mid {
   background-color: #120A8F;
   color: white;

@@ -130,7 +130,6 @@ const HomePage = () => {
         <Card title="Selection Arrea" style={{ width: '100%' }}>
           <Card style={{ width: '100%' }}>
             <TextPartsSelector
-              style={{ width: '100%', overflowWrap: 'anywhere' }}
               affectedContent={paragraph}
               targetContent={sortQuoteList.map((q) => ({
                 id: q.id,
@@ -141,8 +140,7 @@ const HomePage = () => {
               }))}
               onTargetContentChange={setTargetContent}
               // isTriggered={!selectedQuote}
-              multiple={true}
-              // {...(!selectedQuote ? { hoverQuote } : {})}
+              multiple={true}         // {...(!selectedQuote ? { hoverQuote } : {})}
             />
           </Card>
         </Card>
